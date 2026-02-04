@@ -12,8 +12,8 @@
     --fg_color: #59bf4a;
     --chat_name: rgb(55, 55, 55);
     --personal_bg: white;
-    --chats_fg: #517da2;
-    --chats_bg: #d5e8f7
+    --chats_fg: #d2f6ff;
+    --chats_bg: #007bff
 }
 
 body * {
@@ -29,12 +29,52 @@ img {
     width: 100%;
 }
 
+.battery1 {
+    position: absolute;
+    top: 20.6px;
+    left: 305px;
+    font-weight: 800;
+    font-size: 18px;
+    width:25px;
+    height:12.3px;
+    background: #a8a9ab;
+    border-radius: 4px;
+}
+
+.battery2 {
+    position: absolute;
+    top: 20.6px;
+    left: 305px;
+    font-weight: 800;
+    font-size: 18px;
+    width:25px;
+    height:12.3px;
+    background: #000;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+input {
+    position: absolute;
+    buttom: 30px;
+    left: 300px;
+    width: 50px;
+    outline: none;
+}
+
+label {
+    position: absolute;
+    buttom: 30px;
+    left: 220px;
+    font-size: 14px;
+    font-weight: bold;
+}
 
 .chat_time {
     position: absolute;
-    left: 246px;
-    color: #747f89;
-    font-size: 13px;
+    left: 252px;
+    color: #929292;
+    font-size: 12px;
     background: var(--bg_color);
     padding-left: 15px;
     list-style: none;
@@ -45,17 +85,18 @@ img {
 .chat_dp {
     position: absolute;
     list-style: none;
+    background: var(--bg_color);
 }
 
 .chat_dp img {
-    width: 58px;
-    height: 58px;
+    width: 57px;
+    height: 57px;
     border-radius: 50%;
 }
 
 .chat_named_dp {
-    width: 58px;
-    height: 58px;
+    width: 57px;
+    height: 57px;
     display: block;
     color: white;
     border-radius: 50%;
@@ -67,37 +108,41 @@ img {
 
 .online_bullet {
     position: absolute;
-    width: 17px;
-    height: 17px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     background: var(--fg_color);
-    border: 3px solid var(--bg_color);
+    border: 2px solid var(--bg_color);
     list-style: none;
 }
 
 .count_bullet {
     position: absolute;
-    width: 25px;
-    height: 25px;
+    width: 19px;
+    height: 19px;
     border-radius: 50%;
-    background: var(--fg_color);
-    color: white;
+    background: var(--chats_bg);
+    color: var(--chats_fg);
     text-align: center;
-    line-height: 25px;
+    line-height: 19px;
     list-style: none;
+    font-size: 13px;
 }
 
 .msg_img {
     position: absolute;
-    width: 250px;
-    height: 30px;
+    width: 280px;
+    height: 35px;
     background: var(--bg_color);
     display: flex;
+    font-size: 14px;
+    left: 73px;
+    color: #929292;
 }
 
 .msg_img>img {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
     border-radius: 2px;
 }
 
@@ -122,51 +167,61 @@ img {
     width: 210px;
     background: var(--bg_color);
     list-style: none;
+    font-size: 15px;
+    padding: 1px 0;
 }
 
-.All {
+.btn {
     position: absolute;
-    width: 28px;
-    height: 21px;
-    top: 103px;
-    left: 46px;
+    top: 30;
+    left: 60px;
+    cursor: pointer;
+    background: dodgerblue;
+    color: white;
+    border: none;
+    padding: 2px;
+}
+
+.Channels {
+    position: absolute;
+    width: 23px;
+    height: 18px;
+    top: 101px;
+    left: 226px;
     text-align: center;
     background: var(--chats_bg);
     color: var(--chats_fg);
     border-radius: 25px;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 12px;
+    line-height: 18px;
 }
 
 .Unread {
     position: absolute;
-    width: 33px;
-    height: 21px;
-    top: 103px;
-    right: calc(100% - 360px + 41px);
+    width: 32px;
+    height: 18px;
+    top: 101px;
+    left: 320px;
     text-align: center;
     background: var(--chats_bg);
     color: var(--chats_fg);
     border-radius: 25px;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 12px;
+    line-height: 18px;
 }
 
 .Personal {
     position: absolute;
     width: 33px;
-    height: 21px;
-    top: 103px;
-    left: 169px;
+    height: 18px;
+    top: 101px;
+    left: 110px;
     text-align: center;
-    background: var(--personal_bg);
+    background: var(--chats_bg);
     color: var(--chats_fg);
     border-radius: 25px;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 12px;
+    line-height: 18px;
 }
 
 .voice {
@@ -188,57 +243,80 @@ img {
     font-size: 20px;
 }
 
-.tg {
+.hide1 {
     position: absolute;
-    width: 200px;
-    top: 40px;
-    left: 60px;
-    color: white;
-    font-weight: 500;
-    font-size: 20px;
-    background: var(--chats_fg);
-    padding: 10px;
+    width: 40px;
+    height: 40px;
+    top: 50px;
+    left: 120px;
+    background: #f1f1f1;
 }
 
-.btn {
+.hide2 {
     position: absolute;
-    top: 30;
-    left: 100px;
-    cursor: pointer;
-    background: crimson;
-    color: white;
-    border: none;
-    padding: 10px;
+    width: 20px;
+    height: 20px;
+    top: 65px;
+    left: 210px;
+    background: #f1f1f1;
 }
 
-.hide {
+.hide3 {
     position: absolute;
-    top: 790px;
     width: 360px;
-    height: 10px;
-    background: var(--bg_color);
+    height: 16px;
+    top: 689px;
+    left: 0px;
+    background: #ffffff;
 }
 
-.status_time {
+.mob_time {
     position: absolute;
-    width: 30px;
-    height: 12px;
-    top: 16px;
-    left: 47px;
-    text-align: right;
-    color: white;
-    font-size: 12px;
-    background: #517da2;
+    top: 18px;
+    left: 48px;
+    font-weight: 600;
+    font-family: "Helvetica";
+    background-image: linear-gradient(to right, #e8e7e5, #ededeb);
+    padding-right: 3px
 }
 
-.battery {
+.chats_counts {
     position: absolute;
-    width: 16px;
-    height: 7px;
-    top: 19px;
-    left: 311px;
+    width: 38px;
+    height: 16px;
+    top: 707px;
+    left: 161px;
     text-align: center;
-    color: white;
-    font-size: 7px;
-    background: #6c90b0;
+    background: #ff3932;
+    color: #ffd9d8;
+    border-radius: 25px;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.logo {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: 709px;
+    left: 287px;
+    text-align: center;
+    background: #ff3932;
+    color: #ffd9d8;
+    border-radius: 25px;
+    font-size: 12px;
+}
+
+.settings_count {
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    top: 706px;
+    left: 301px;
+    text-align: center;
+    background: #ff3932;
+    color: #ffd9d8;
+    border-radius: 25px;
+    font-size: 12px;
+    line-height: 17px;
 }
