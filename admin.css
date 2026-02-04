@@ -1,0 +1,5 @@
+body { background: #0e121a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.admin-container { background: #1c222d; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; width: 350px; }
+input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 10px; border: none; outline: none; box-sizing: border-box; }
+.btn-blue { background: #007bff; color: white; border: none; padding: 15px 25px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; }
+.btn-blue:hover { background: #0056b3; }
