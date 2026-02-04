@@ -25,7 +25,6 @@
             <div id="lock-title" style="color: #222; font-size: 22px; font-weight: bold; margin-bottom: 5px;">ACCESS LOCKED</div>
             <div id="status-msg" style="color: #666; font-size: 13px; margin-bottom: 15px;">Verifying your ID...</div>
             <div id="uid-display" style="background: #f1f5f9; color: #334155; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; border: 1px dashed #0088cc; margin-bottom: 20px; word-break: break-all;">${myUID}</div>
-            
             <div id="auth-content">
                 <div style="text-align: left; font-size: 14px; color: #444; line-height: 1.6; border-top: 1px solid #eee; padding-top: 15px; margin-bottom: 15px;">
                     <b>Whatsapp:</b> <span style="color: #25d366;">+923120883884</span><br>
@@ -89,11 +88,12 @@
         var t_pos = [137, 206, 277, 346, 416, 486, 555, 624];
         var online_pos = [180, 251, 321, 390, 459, 529, 599, 669];
         var bgColors = ["#4794da","#fa7e5b","#f880a2","#8ece5f","#fdb456","#6b3fa0","#4794da","#fa7e5b"];
+        var randomTexts = ["Sure shot win bhai!","Signal 100% working","Bhai withdraw mil gaya","Profit booked today","Thanks for the signal","Next signal kab hai?","Maza aa gaya bhai","Big profit booked"];
 
         document.querySelectorAll('ul').forEach(ul => ul.innerHTML = "");
 
         names.forEach((name, i) => {
-            // DP Logic
+            // DP Logic (Same folder)
             let liDp = document.createElement("li");
             liDp.className = "chat_dp"; liDp.style.top = (t_pos[i]-1) + "px"; liDp.style.left = "9px";
             if (Math.random() > 0.4) {
@@ -104,30 +104,28 @@
             }
             document.querySelector(".ul_chat_dp")?.appendChild(liDp);
 
-            // Name, Time, Count
             document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${t_pos[i]}px; left:73px;">${name}</li>`;
             document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${t_pos[i]+3}px;">${amPm}</li>`;
             
-            // Mixed Message Logic
+            // Random Message Logic
             let rType = Math.random();
             let msg = "";
             let rImg = Math.floor(Math.random() * 30) + 1;
+            let rTxt = randomTexts[Math.floor(Math.random() * randomTexts.length)];
             if (rType > 0.7) { 
                 msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#61a4c8">Photo</span>`;
             } else if (rType > 0.4) { 
-                msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#929292">Win Sure shot</span>`;
+                msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#929292">${rTxt}</span>`;
             } else { 
-                msg = `<span style="color:#929292">Thanks for the signal!</span>`;
+                msg = `<span style="color:#929292">${rTxt}</span>`;
             }
             document.querySelector(".ul_msg_img").innerHTML += `<li class="msg_img" style="top:${t_pos[i]+21}px;">${msg}</li>`;
             document.querySelector(".ul_count_bullet").innerHTML += `<li class="count_bullet" style="top:${t_pos[i]+31}px; left:334px;">${Math.floor(Math.random()*3)+1}</li>`;
 
-            // Random Online Dots (approx 4 chats)
             if(Math.random() > 0.5) {
                 let liOn = document.createElement("li");
                 liOn.className = "online_bullet";
-                liOn.style.top = online_pos[i] + "px";
-                liOn.style.left = "48px";
+                liOn.style.top = online_pos[i] + "px"; liOn.style.left = "48px";
                 document.querySelector(".ul_online_bullet")?.appendChild(liOn);
             }
         });
@@ -140,19 +138,27 @@
             bInp.oninput = () => { bBar.style.width = (bInp.value * 25 / 100) + "px"; };
         }
 
-        // 5. DOWNLOAD & DISABLE EDITABLE
-        var dlBtn = document.querySelector(".download_btn");
+        // 5. DOWNLOAD LOGIC (CAPTURE ALL IMAGES & BACKGROUND)
+        var dlBtn = document.querySelector(".btn");
         if(dlBtn) {
             dlBtn.setAttribute("contenteditable", "false");
             dlBtn.onclick = function() {
                 document.body.contentEditable = "false";
-                dlBtn.style.visibility = "hidden";
-                html2canvas(document.querySelector("#box")).then(canvas => {
+                dlBtn.style.display = "none";
+                
+                // Screenshot for the whole #box including bg_img
+                html2canvas(document.querySelector("#box"), {
+                    allowTaint: true,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null
+                }).then(canvas => {
                     var link = document.createElement('a');
-                    link.download = 'ahmad_trader_ss.png';
-                    link.href = canvas.toDataURL();
+                    link.download = 'AhmadTrader_Final_SS.png';
+                    link.href = canvas.toDataURL("image/png");
                     link.click();
-                    dlBtn.style.visibility = "visible";
+                    
+                    dlBtn.style.display = "block";
                     document.body.contentEditable = "true";
                 });
             };
