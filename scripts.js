@@ -16,11 +16,11 @@
     Object.assign(overlay.style, {
         position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
         background: '#0e121a', zIndex: '2147483647', display: 'flex', 
-        justifyContent: 'center', alignHeight: 'center', fontFamily: 'sans-serif'
+        justifyContent: 'center', alignItems: 'center', fontFamily: 'sans-serif'
     });
 
     overlay.innerHTML = `
-        <div id="lock-card-main" style="position: fixed; background: white; width: 320px; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); box-sizing: border-box; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div id="lock-card-main" style="position: fixed; background: white; width: 320px; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); box-sizing: border-box;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" style="width: 70px; margin-bottom: 15px;">
             <div id="lock-title" style="color: #222; font-size: 22px; font-weight: bold; margin-bottom: 5px;">ACCESS LOCKED</div>
             <div id="status-msg" style="color: #666; font-size: 13px; margin-bottom: 15px;">Verifying your ID...</div>
@@ -72,6 +72,7 @@
 
     // 4. MAIN UI
     function executeMain(email) {
+        // Logo switcher - Same folder path
         var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","haseeb@gmail.com":"haseeb.png"};
         document.querySelector(".logo")?.setAttribute("src", logoMap[email] || "ahmad.png");
 
@@ -86,12 +87,12 @@
         document.querySelectorAll('ul').forEach(ul => ul.innerHTML = "");
 
         names.forEach((name, i) => {
-            // --- DP Logic: Random Img or Initial ---
+            // --- DP Logic: Same folder path (dp1.png etc) ---
             let liDp = document.createElement("li");
             liDp.className = "chat_dp"; liDp.style.top = (t_pos[i]-1) + "px"; liDp.style.left = "9px";
             if (Math.random() > 0.4) {
                 let rDpNum = Math.floor(Math.random() * 30) + 1;
-                liDp.innerHTML = `<img src="dps/dp${rDpNum}.png" style="width:57px; height:57px; border-radius:50%; object-fit:cover;">`;
+                liDp.innerHTML = `<img src="dp${rDpNum}.png" style="width:57px; height:57px; border-radius:50%; object-fit:cover;">`;
             } else {
                 liDp.innerHTML = `<span class="chat_named_dp" style="background:${bgColors[i]}; display:block; width:57px; height:57px; border-radius:50%; color:white; text-align:center; line-height:57px; font-size:22px; font-weight:bold;">${name[0]}</span>`;
             }
@@ -100,16 +101,16 @@
             document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${t_pos[i]}px; left:73px;">${name}</li>`;
             document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${t_pos[i]+3}px;">${amPm}</li>`;
             
-            // --- Mixed Message Logic ---
+            // --- Mixed Message Logic: Same folder path (1.png etc) ---
             let rType = Math.random();
             let msg = "";
             let rImg = Math.floor(Math.random() * 30) + 1;
 
-            if (rType > 0.7) { // Only Photo (Blue color)
-                msg = `<img src="msgs/${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#61a4c8">Photo</span>`;
-            } else if (rType > 0.4) { // Img + Simple Message (Gray color)
-                msg = `<img src="msgs/${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#929292">Win Sure shot</span>`;
-            } else { // Text Only
+            if (rType > 0.7) { 
+                msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#61a4c8">Photo</span>`;
+            } else if (rType > 0.4) { 
+                msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#929292">Win Sure shot</span>`;
+            } else { 
                 msg = `<span style="color:#929292">Thanks for the signal!</span>`;
             }
 
@@ -130,14 +131,19 @@
         if(dlBtn) {
             dlBtn.setAttribute("contenteditable", "false");
             dlBtn.onclick = function() {
+                // STOP EDITING
                 document.body.contentEditable = "false";
-                dlBtn.innerText = "Capturing...";
+                dlBtn.style.visibility = "hidden"; // Screenshot mein button na aaye
+
                 html2canvas(document.querySelector("#box")).then(canvas => {
                     var link = document.createElement('a');
-                    link.download = 'screenshot.png';
+                    link.download = 'ahmad_trader_ss.png';
                     link.href = canvas.toDataURL();
                     link.click();
-                    dlBtn.innerText = "Download SS";
+                    
+                    // Button wapis dikhao screenshot ke baad agar zaroorat ho
+                    dlBtn.style.visibility = "visible";
+                    document.body.contentEditable = "true";
                 });
             };
         }
