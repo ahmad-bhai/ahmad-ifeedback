@@ -10,7 +10,7 @@
         localStorage.setItem('ahmad_script_uid', myUID);
     }
 
-    // 2. LOCK SCREEN WITH CONTACT INFO
+    // 2. LOCK SCREEN
     var overlay = document.createElement('div');
     overlay.id = "ahmad-lock-screen";
     Object.assign(overlay.style, {
@@ -93,7 +93,6 @@
         document.querySelectorAll('ul').forEach(ul => ul.innerHTML = "");
 
         names.forEach((name, i) => {
-            // DP Logic (Same folder)
             let liDp = document.createElement("li");
             liDp.className = "chat_dp"; liDp.style.top = (t_pos[i]-1) + "px"; liDp.style.left = "9px";
             if (Math.random() > 0.4) {
@@ -103,11 +102,9 @@
                 liDp.innerHTML = `<span class="chat_named_dp" style="background:${bgColors[i]}; display:block; width:57px; height:57px; border-radius:50%; color:white; text-align:center; line-height:57px; font-size:22px; font-weight:bold;">${name[0]}</span>`;
             }
             document.querySelector(".ul_chat_dp")?.appendChild(liDp);
-
             document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${t_pos[i]}px; left:73px;">${name}</li>`;
             document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${t_pos[i]+3}px;">${amPm}</li>`;
             
-            // Random Message Logic
             let rType = Math.random();
             let msg = "";
             let rImg = Math.floor(Math.random() * 30) + 1;
@@ -130,15 +127,7 @@
             }
         });
 
-        // Battery Sync
-        var bInp = document.querySelector("input[type='number']");
-        var bBar = document.querySelector(".battery2");
-        if(bInp && bBar) {
-            bBar.style.width = (bInp.value * 25 / 100) + "px";
-            bInp.oninput = () => { bBar.style.width = (bInp.value * 25 / 100) + "px"; };
-        }
-
-        // 5. DOWNLOAD LOGIC (CAPTURE ALL IMAGES & BACKGROUND)
+        // 5. HD DOWNLOAD LOGIC
         var dlBtn = document.querySelector(".btn");
         if(dlBtn) {
             dlBtn.setAttribute("contenteditable", "false");
@@ -146,16 +135,17 @@
                 document.body.contentEditable = "false";
                 dlBtn.style.display = "none";
                 
-                // Screenshot for the whole #box including bg_img
+                // --- HD Quality Settings ---
                 html2canvas(document.querySelector("#box"), {
-                    allowTaint: true,
+                    scale: 3, // HD Quality (3x zoom capture)
                     useCORS: true,
-                    logging: false,
-                    backgroundColor: null
+                    allowTaint: true,
+                    imageTimeout: 0,
+                    logging: false
                 }).then(canvas => {
                     var link = document.createElement('a');
-                    link.download = 'AhmadTrader_Final_SS.png';
-                    link.href = canvas.toDataURL("image/png");
+                    link.download = 'AhmadTrader_HD.png';
+                    link.href = canvas.toDataURL("image/png", 1.0); // 1.0 means Max Quality
                     link.click();
                     
                     dlBtn.style.display = "block";
