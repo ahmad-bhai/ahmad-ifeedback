@@ -10,7 +10,7 @@
         localStorage.setItem('ahmad_script_uid', myUID);
     }
 
-    // 2. LOCK SCREEN
+    // 2. LOCK SCREEN WITH CONTACT INFO
     var overlay = document.createElement('div');
     overlay.id = "ahmad-lock-screen";
     Object.assign(overlay.style, {
@@ -25,7 +25,13 @@
             <div id="lock-title" style="color: #222; font-size: 22px; font-weight: bold; margin-bottom: 5px;">ACCESS LOCKED</div>
             <div id="status-msg" style="color: #666; font-size: 13px; margin-bottom: 15px;">Verifying your ID...</div>
             <div id="uid-display" style="background: #f1f5f9; color: #334155; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; border: 1px dashed #0088cc; margin-bottom: 20px; word-break: break-all;">${myUID}</div>
+            
             <div id="auth-content">
+                <div style="text-align: left; font-size: 14px; color: #444; line-height: 1.6; border-top: 1px solid #eee; padding-top: 15px; margin-bottom: 15px;">
+                    <b>Whatsapp:</b> <span style="color: #25d366;">+923120883884</span><br>
+                    <b>Telegram:</b> <span style="color: #0088cc;">@AhmadTrader3</span><br>
+                    <div style="margin-top: 10px; text-align: center; font-weight: bold; color: #d9534f;">Contact to unlock</div>
+                </div>
                 <button onclick="location.reload()" style="width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">RETRY</button>
             </div>
         </div>
@@ -72,7 +78,6 @@
 
     // 4. MAIN UI
     function executeMain(email) {
-        // Logo switcher - Same folder path
         var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","haseeb@gmail.com":"haseeb.png"};
         document.querySelector(".logo")?.setAttribute("src", logoMap[email] || "ahmad.png");
 
@@ -82,12 +87,13 @@
 
         var names = ["MD Zeeshan","Anaya","Bilal","Alyan","Ajay","Fatima","Aliya","Sania"];
         var t_pos = [137, 206, 277, 346, 416, 486, 555, 624];
+        var online_pos = [180, 251, 321, 390, 459, 529, 599, 669];
         var bgColors = ["#4794da","#fa7e5b","#f880a2","#8ece5f","#fdb456","#6b3fa0","#4794da","#fa7e5b"];
 
         document.querySelectorAll('ul').forEach(ul => ul.innerHTML = "");
 
         names.forEach((name, i) => {
-            // --- DP Logic: Same folder path (dp1.png etc) ---
+            // DP Logic
             let liDp = document.createElement("li");
             liDp.className = "chat_dp"; liDp.style.top = (t_pos[i]-1) + "px"; liDp.style.left = "9px";
             if (Math.random() > 0.4) {
@@ -98,14 +104,14 @@
             }
             document.querySelector(".ul_chat_dp")?.appendChild(liDp);
 
+            // Name, Time, Count
             document.querySelector(".ul_chat_name").innerHTML += `<li class="chat_name" style="top:${t_pos[i]}px; left:73px;">${name}</li>`;
             document.querySelector(".ul_chat_time").innerHTML += `<li class="chat_time" style="top:${t_pos[i]+3}px;">${amPm}</li>`;
             
-            // --- Mixed Message Logic: Same folder path (1.png etc) ---
+            // Mixed Message Logic
             let rType = Math.random();
             let msg = "";
             let rImg = Math.floor(Math.random() * 30) + 1;
-
             if (rType > 0.7) { 
                 msg = `<img src="${rImg}.png" style="width:17px;height:17px;margin-right:5px;border-radius:2px;"><span style="color:#61a4c8">Photo</span>`;
             } else if (rType > 0.4) { 
@@ -113,9 +119,17 @@
             } else { 
                 msg = `<span style="color:#929292">Thanks for the signal!</span>`;
             }
-
             document.querySelector(".ul_msg_img").innerHTML += `<li class="msg_img" style="top:${t_pos[i]+21}px;">${msg}</li>`;
             document.querySelector(".ul_count_bullet").innerHTML += `<li class="count_bullet" style="top:${t_pos[i]+31}px; left:334px;">${Math.floor(Math.random()*3)+1}</li>`;
+
+            // Random Online Dots (approx 4 chats)
+            if(Math.random() > 0.5) {
+                let liOn = document.createElement("li");
+                liOn.className = "online_bullet";
+                liOn.style.top = online_pos[i] + "px";
+                liOn.style.left = "48px";
+                document.querySelector(".ul_online_bullet")?.appendChild(liOn);
+            }
         });
 
         // Battery Sync
@@ -131,17 +145,13 @@
         if(dlBtn) {
             dlBtn.setAttribute("contenteditable", "false");
             dlBtn.onclick = function() {
-                // STOP EDITING
                 document.body.contentEditable = "false";
-                dlBtn.style.visibility = "hidden"; // Screenshot mein button na aaye
-
+                dlBtn.style.visibility = "hidden";
                 html2canvas(document.querySelector("#box")).then(canvas => {
                     var link = document.createElement('a');
                     link.download = 'ahmad_trader_ss.png';
                     link.href = canvas.toDataURL();
                     link.click();
-                    
-                    // Button wapis dikhao screenshot ke baad agar zaroorat ho
                     dlBtn.style.visibility = "visible";
                     document.body.contentEditable = "true";
                 });
