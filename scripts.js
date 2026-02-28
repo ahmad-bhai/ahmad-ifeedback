@@ -1,3 +1,4 @@
+
 (function() {
     // 1. CONFIG & ID
     var projectID = "reactions-maker-site";
@@ -57,6 +58,8 @@
                     <div class="em-item" data-val="usman@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">usman@gmail.com</div>
                     <div class="em-item" data-val="pqa@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">pqa@gmail.com</div>
                     <div class="em-item" data-val="haseeb@gmail.com" style="padding: 12px; cursor: pointer;">haseeb@gmail.com</div>
+            <div class="em-item" data-val="talha@gmail.com" style="padding: 12px; cursor: pointer;">talha@gmail.com</div>
+
                 </div>
                 <button id="activate-btn" disabled style="width: 100%; background: #ccc; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">ACTIVATE</button>
             `;
@@ -77,7 +80,7 @@
 
     // 4. MAIN UI
     function executeMain(email) {
-        var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","haseeb@gmail.com":"haseeb.png"};
+        var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","haseeb@gmail.com":"haseeb.png","talha@gmail.com":"talha.png"};
         document.querySelector(".logo")?.setAttribute("src", logoMap[email] || "ahmad.png");
 
         var now = new Date();
@@ -176,3 +179,4 @@
         document.body.contentEditable = "true";
     }
 })();
+
