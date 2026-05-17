@@ -108,7 +108,7 @@
         var t_pos = [137, 206, 277, 346, 416, 486, 555, 624];
         var online_pos = [180, 251, 321, 390, 459, 529, 599, 669];
         var bgColors = ["#4794da","#fa7e5b","#f880a2","#8ece5f","#fdb456","#6b3fa0","#4794da","#fa7e5b"];
-        var randomTexts = ["Sure shot win bhai!","Signal 100% working","Bhai withdraw mil gaya","Profit booked today","Thanks for the signal","Next signal kab hai?","Maza aa gaya bhai","Big profit booked"];
+        var randomTexts = ["Sure shot win bhai!🎉","Signal 100% working💯","Bhai withdraw mil gaya😘","Profit booked today👍","Thanks for the signal💕","Next signal kab hai?🙄","Maza aa gaya bhai😋","Big profit booked🤩"];
 
         document.querySelectorAll('ul').forEach(ul => ul.innerHTML = "");
 
