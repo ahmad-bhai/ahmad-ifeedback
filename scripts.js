@@ -58,6 +58,7 @@
                     <div class="em-item" data-val="usman@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">usman@gmail.com</div>
                     <div class="em-item" data-val="pqa@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">pqa@gmail.com</div>
                     <div class="em-item" data-val="honey.heist@gmail.com" style="padding: 12px; cursor: pointer;">honey.heist@gmail.com</div>
+                    <div class="em-item" data-val="mob@gmail.com" style="padding: 12px; cursor: pointer;">mob@gmail.com</div>
             <div class="em-item" data-val="bug.shoter@gmail.com" style="padding: 12px; cursor: pointer;">bug.shoter@gmail.com</div>
 
                 </div>
@@ -80,7 +81,7 @@
 
     // 4. MAIN UI
     function executeMain(email) {
-        var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","honey.heist@gmail.com":"hh.png","bug.shoter@gmail.com":"bs.png"};
+        var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","honey.heist@gmail.com":"hh.png","bug.shoter@gmail.com":"bs.png","mob@gmail.com":"mob.png"};
         document.querySelector(".logo")?.setAttribute("src", logoMap[email] || "ahmad.png");
 
         var now = new Date();
