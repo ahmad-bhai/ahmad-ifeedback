@@ -173,13 +173,61 @@ label {
 
 .btn {
     position: absolute;
-    top: 0;
-    left: 60px;
+    top: 24px; /* Top se thoda balanced margin */
+    left: 50%; /* Screen ke center mein le jaane ke liye */
+    transform: translateX(-50%); /* Exact center alignment ke liye perfect fix */
     cursor: pointer;
-    background: dodgerblue;
-    color: white;
-    border: none;
-    padding: 2px;
+    
+    /* Modern Glassmorphism Look */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(8px); /* Background ko premium blur karega */
+    -webkit-backdrop-filter: blur(8px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px; /* Ultra modern rounded corners */
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px; /* Thoda sa size bada kiya taake click ratio behtar ho */
+    height: 48px;
+    
+    /* Premium Floating Shadow */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 
+                0 8px 16px -6px rgba(0, 0, 0, 0.05),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.03);
+    
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Super smooth apple-like transition */
+}
+
+/* Hover Effect - Jab mouse upar aaye */
+.btn:hover {
+    background: #2AA1DA;
+    border-color: rgba(0, 0, 0, 0.1);
+    /* Hover par X-axis ka center barkarar rakhte hue Y-axis par upar uthega */
+    transform: translateX(-50%) translateY(-4px); 
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.12);
+}
+
+/* Active Effect - Jab click karein */
+.btn:active {
+    transform: translateX(-50%) translateY(-1px); /* Click karne par smooth feel */
+    box-shadow: 0 5px 10px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Icon styling */
+.btn img {
+    width: 22px; /* Perfect golden ratio size */
+    height: 22px;
+    object-fit: contain;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Icon ka color agar dark na ho toh modern dark gray filter (optional) */
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05)); 
+}
+
+/* Hover par icon thoda sa scale up hoga aur ghumega nahi, simple dynamic lagega */
+.btn:hover img {
+    transform: scale(1.1);
 }
 
 .Channels {
