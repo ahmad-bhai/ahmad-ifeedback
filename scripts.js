@@ -1,4 +1,14 @@
-
+// --- Security Check Start ---
+(function() {
+    const authorizedDomain = "ahmad-ifeedback.vercel.app";
+    const currentHost = window.location.hostname;
+ 
+    // Agar domain match nahi karta toh /error par bhej do
+    if (currentHost !== authorizedDomain) {
+        window.location.href = window.location.origin + "/error";
+    }
+})();
+// --- Security Check End ---
 (function() {
     // 1. CONFIG & ID
     var projectID = "reactions-maker-site";
