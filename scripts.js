@@ -1,6 +1,6 @@
 // --- Security Check Start ---
 (function() {
-    const authorizedDomain = "ahmad-ifeedback.vercel.app";
+    const authorizedDomain = "check-scripts.vercel.app";
     const currentHost = window.location.hostname;
  
     // Agar domain match nahi karta toh /error par bhej do
