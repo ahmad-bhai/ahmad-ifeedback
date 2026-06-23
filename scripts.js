@@ -1,10 +1,24 @@
 // --- Security Check Start ---
 (function() {
-    const authorizedDomain = "check-scripts.vercel.app";
+    const authorizedDomains = [
+        "ahmad-ifeedback.vercel.app",
+        "check-scripts.vercel.app",
+        "quotex.market",
+        "qtxbrk.com",
+        "quotex-ir.com",
+        "broker-qx.pro",
+        "market-qx.pro",
+        "market-qx.trade",
+        "qxbroker.com",
+        "brokerqx.com",
+        "qxbroker.pro",
+        "brokerqx.pro"
+    ];
+    
     const currentHost = window.location.hostname;
  
-    // Agar domain match nahi karta toh /error par bhej do
-    if (currentHost !== authorizedDomain) {
+    // Check agar current host authorized list mein exist karta hai
+    if (!authorizedDomains.includes(currentHost)) {
         window.location.href = window.location.origin + "/error";
     }
 })();
