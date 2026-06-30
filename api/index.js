@@ -1,7 +1,16 @@
 const https = require('https');
 const urlModule = require('url');
 
-// Strict HTTPS Request Helper
+// ⏱️ SPEED MATRIX CONFIGURATION (Ahmad Bhai's Requirement)
+const SPEED_DELAY_MAP = {
+    "slow": 600000,       // 10 Minutes delay
+    "normal": 300000,     // 5 Minutes delay
+    "fast": 60000,        // 1 Minute delay
+    "very_fast": 30000,   // 30 Seconds delay
+    "ultra": 0            // Instant (Foran)
+};
+
+// ⚡ Heavy-Duty Telegram API Request Engine
 function sendTelegramRequest(token, method, body) {
     return new Promise((resolve) => {
         const data = JSON.stringify(body);
@@ -31,20 +40,31 @@ function sendTelegramRequest(token, method, body) {
     });
 }
 
-// Fixed Serverless View Hit Generator (Forces Vercel to wait)
-function hitWebPage(url) {
+// 🌐 Advanced Telegram View Controller (Emulates Real User View Injection)
+function fireSingleViewHit(targetUrl) {
     return new Promise((resolve) => {
-        const req = https.get(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) MagicScripts/3.0' }
-        }, (res) => {
-            res.resume(); // Consume response to free memory
+        const options = {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Referer': 'https://t.me/', // Telegram require counters mapping link
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        };
+
+        const req = https.get(targetUrl, options, (res) => {
+            res.resume(); // Free memory buffer memory instantly
             resolve(true);
         });
         req.on('error', () => resolve(false));
     });
 }
 
+// 🚀 Core Vercel Serverless Function Handler
 module.exports = async (req, res) => {
+    // Enable CORS requests across handlers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -54,52 +74,57 @@ module.exports = async (req, res) => {
     const parsedUrl = urlModule.parse(req.url, true);
     const queryParams = parsedUrl.query;
 
-    // -------------------------------------------------------------
-    // WEBHOOK HANDLER ENGINE (?route=webhook)
-    // -------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // 🎛️ SECTION 1: WEBHOOK DISPATCHER SYSTEM (?route=webhook)
+    // -------------------------------------------------------------------------
     if (queryParams.route === 'webhook') {
-        const { token, admin: adminId, msg: welcomeMsg, views: currentViewsSetting } = queryParams;
+        const { token, admin: adminId, msg: welcomeMsg, views: currentViewsSetting, speed: activeSpeed = 'ultra' } = queryParams;
         const update = req.body;
 
         if (!token || !update) return res.status(200).send('OK');
-        const viewsLimit = parseInt(currentViewsSetting || "20");
+        const totalViewsToInject = parseInt(currentViewsSetting || "20");
 
-        // ⚡ FEATURE A: AUTO VIEWS & REACTIONS (PUBLIC & PRIVATE)
+        // 🔥 FEATURE A: MULTI-SPEED CHANNEL POST VIEWS BOOSTER (PUBLIC + PRIVATE)
         if (update.channel_post) {
             const channelPost = update.channel_post;
             const msgId = channelPost.message_id;
             const chatId = channelPost.chat.id;
             const channelUsername = channelPost.chat.username || null;
 
-            // 1. Fire Reaction
-            const globalEmojis = ["👍", "❤️", "🔥", "🥰", "🎉", "🤩", "👌", "💯", "⚡", "😎"];
-            const randomEmoji = globalEmojis[Math.floor(Math.random() * globalEmojis.length)];
-            await sendTelegramRequest(token, 'setMessageReaction', {
-                chat_id: chatId,
-                message_id: msgId,
-                reaction: [{ type: "emoji", emoji: randomEmoji }]
-            });
-
-            // 2. Generate Target URL for Views
-            let targetUrl = '';
+            // Step 1: Format target URL safe parameters
+            let targetViewUrl = '';
             if (channelUsername) {
-                targetUrl = `https://t.me/${channelUsername}/${msgId}?embed=1`;
+                targetViewUrl = `https://t.me/${channelUsername}/${msgId}?embed=1`;
             } else {
                 const cleanId = Math.abs(parseInt(chatId)).toString().replace(/^100/, '');
-                targetUrl = `https://t.me/c/${cleanId}/${msgId}?embed=1`;
+                targetViewUrl = `https://t.me/c/${cleanId}/${msgId}?embed=1`;
             }
 
-            // 3. Strict Serverless Wait Loop (Vercel stops until this finishes)
-            const viewHits = [];
-            for (let i = 0; i < viewsLimit; i++) {
-                viewHits.push(hitWebPage(targetUrl));
+            // Step 2: Fetch assigned processing latency from Speed Matrix
+            const processDelay = SPEED_DELAY_MAP[activeSpeed.toLowerCase()] || 0;
+
+            if (processDelay > 0) {
+                // Delayed processing mapping (Slow, Normal, Fast, Very Fast)
+                setTimeout(async () => {
+                    const viewsBatch = [];
+                    for (let i = 0; i < totalViewsToInject; i++) {
+                        viewsBatch.push(fireSingleViewHit(targetViewUrl));
+                    }
+                    await Promise.all(viewsBatch);
+                }, processDelay);
+            } else {
+                // Ultra Fast System (Foran Execution)
+                const viewsBatch = [];
+                for (let i = 0; i < totalViewsToInject; i++) {
+                    viewsBatch.push(fireSingleViewHit(targetViewUrl));
+                }
+                await Promise.all(viewsBatch);
             }
-            await Promise.all(viewHits); 
 
             return res.status(200).send('OK');
         }
 
-        // ⚡ FEATURE B: PRIVATE CHAT /START WITH INLINE BUTTONS
+        // 🔥 FEATURE B: STABLE PRIVATE CHAT /START CONTROLLER (INLINE KEYBOARD BUILT-IN)
         if (update.message) {
             const message = update.message;
             const chatId = message.chat.id;
@@ -112,8 +137,8 @@ module.exports = async (req, res) => {
                 const username = user.username ? `@${user.username}` : "None";
 
                 if (adminId) {
-                    const adminText = `🔔 New User Started Bot\n\nName: ${fullName}\nUsername: ${username}\nID: ${chatId}`;
-                    await sendTelegramRequest(token, 'sendMessage', { chat_id: adminId, text: adminText });
+                    const adminAlertText = `🔔 New User Hooked\n\nName: ${fullName}\nUsername: ${username}\nID: ${chatId}`;
+                    await sendTelegramRequest(token, 'sendMessage', { chat_id: adminId, text: adminAlertText });
                 }
 
                 let finalWelcome = "";
@@ -128,14 +153,14 @@ module.exports = async (req, res) => {
                 const botDetails = await sendTelegramRequest(token, 'getMe', {});
                 const botName = botDetails.ok ? botDetails.result.username : "bot";
 
-                // Sent normal raw text text without formatting bugs to guarantee buttons display
+                // Direct UI engine messaging without formatting parameters to eliminate inline break bugs
                 await sendTelegramRequest(token, 'sendMessage', {
                     chat_id: chatId,
                     text: finalWelcome,
                     reply_markup: {
                         inline_keyboard: [
                             [{ text: "➕ Add to Channel", url: `https://t.me/${botName}?startchannel=true` }],
-                            [{ text: "⚙️ Bot Settings Menu", callback_data: "open_settings" }]
+                            [{ text: "⚙️ Settings Menu", callback_data: "open_settings_menu" }]
                         ]
                     }
                 });
@@ -143,14 +168,14 @@ module.exports = async (req, res) => {
             return res.status(200).send('OK');
         }
 
-        // ⚡ FEATURE C: INLINE BUTTONS CONFIGURATION MENU
+        // 🔥 FEATURE C: INTERACTIVE CONFIGURATION CONTROLS (VIEWS & SPEED SWITCHER)
         if (update.callback_query) {
             const callbackQuery = update.callback_query;
             const callbackData = callbackQuery.data;
             const messageId = callbackQuery.message.message_id;
             const chatId = callbackQuery.message.chat.id;
 
-            const editMessage = async (text, keyboard) => {
+            const refreshScreen = async (text, keyboard) => {
                 await sendTelegramRequest(token, 'editMessageText', {
                     chat_id: chatId,
                     message_id: messageId,
@@ -159,35 +184,68 @@ module.exports = async (req, res) => {
                 });
             };
 
-            if (callbackData === 'open_settings') {
-                const text = `🛠️ Bot Configuration Panel\n\nCurrent Plan: ${viewsLimit} Views/Post\n\nChoose an option below:`;
+            const domain = req.headers['x-forwarded-host'] || req.headers.host;
+
+            // Menu Screen router
+            if (callbackData === 'open_settings_menu') {
+                const configText = `⚙️ Configuration Panel\n\nCurrent Setup:\n- Views/Post: ${totalViewsToInject}\n- Delivery Speed: ${activeSpeed.toUpperCase()}\n\nSelect a feature parameter to change:`;
+                const mainKeyboard = [
+                    [{ text: "🔢 Adjust Views Count", callback_data: "view_submenu" }],
+                    [{ text: "⚡ Adjust Injector Speed", callback_data: "speed_submenu" }]
+                ];
+                await refreshScreen(configText, mainKeyboard);
+            }
+
+            // Views Setup Router
+            if (callbackData === 'view_submenu') {
+                const text = `🔢 Modify Total Views Counter Target:`;
                 const keyboard = [
                     [
-                        { text: viewsLimit === 5 ? "✅ 5 Views" : "5 Views", callback_data: "set_views_5" },
-                        { text: viewsLimit === 10 ? "✅ 10 Views" : "10 Views", callback_data: "set_views_10" },
-                        { text: viewsLimit === 20 ? "✅ 20 Views" : "20 Views", callback_data: "set_views_20" }
+                        { text: totalViewsToInject === 5 ? "✅ 5 Views" : "5 Views", callback_data: "save_v_5" },
+                        { text: totalViewsToInject === 10 ? "✅ 10 Views" : "10 Views", callback_data: "save_v_10" },
+                        { text: totalViewsToInject === 20 ? "✅ 20 Views" : "20 Views", callback_data: "save_v_20" }
                     ],
-                    [{ text: "🔙 Back", callback_data: "back_main" }]
+                    [{ text: "🔙 Back to Dashboard", callback_data: "open_settings_menu" }]
                 ];
-                await editMessage(text, keyboard);
+                await refreshScreen(text, keyboard);
             }
 
-            if (callbackData.startsWith('set_views_')) {
-                const newLimit = callbackData.split('_')[2]; 
-                const domain = req.headers['x-forwarded-host'] || req.headers.host;
-                
-                const newWebhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${welcomeMsg}&views=${newLimit}`;
+            if (callbackData.startsWith('save_v_')) {
+                const targetViews = callbackData.split('_')[2];
+                const newWebhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${welcomeMsg}&views=${targetViews}&speed=${activeSpeed}`;
                 await sendTelegramRequest(token, 'setWebhook', { url: newWebhookUrl });
 
-                const text = `ℹ️ Success! Views limit updated to ${newLimit}.\n\nYour bot will now trigger ${newLimit} views per post.`;
-                const keyboard = [[{ text: "🔙 Back to Settings", callback_data: "open_settings" }]];
-                await editMessage(text, keyboard);
+                const text = `ℹ️ Success!\nViews updated to: ${targetViews} per post.`;
+                const keyboard = [[{ text: "🔙 Main Menu", callback_data: "open_settings_menu" }]];
+                await refreshScreen(text, keyboard);
             }
 
-            if (callbackData === 'back_main') {
-                const text = `Bot Dashboard Active 🤖\n\nManage settings above or add me to a channel.`;
-                const keyboard = [[{ text: "⚙️ Bot Settings Menu", callback_data: "open_settings" }]];
-                await editMessage(text, keyboard);
+            // Speed Setup Router (Ahmad Bhai's 5 Speed Protocol Layout)
+            if (callbackData === 'speed_submenu') {
+                const text = `⚡ Select View Generation Speed Engine:\n\n🐢 Slow = 10 Min\n🚶 Normal = 5 Min\n⚡ Fast = 1 Min\n🚀 Very Fast = 30 Sec\n🔥 Ultra Fast = Instant`;
+                const keyboard = [
+                    [
+                        { text: activeSpeed === 'slow' ? "✅ Slow" : "Slow", callback_data: "save_s_slow" },
+                        { text: activeSpeed === 'normal' ? "✅ Normal" : "Normal", callback_data: "save_s_normal" }
+                    ],
+                    [
+                        { text: activeSpeed === 'fast' ? "✅ Fast" : "Fast", callback_data: "save_s_fast" },
+                        { text: activeSpeed === 'very_fast' ? "✅ V.Fast" : "V.Fast", callback_data: "save_s_very_fast" }
+                    ],
+                    [{ text: activeSpeed === 'ultra' ? "✅ Ultra Fast" : "Ultra Fast", callback_data: "save_s_ultra" }],
+                    [{ text: "🔙 Back to Dashboard", callback_data: "open_settings_menu" }]
+                ];
+                await refreshScreen(text, keyboard);
+            }
+
+            if (callbackData.startsWith('save_s_')) {
+                const chosenSpeed = callbackData.replace('save_s_', '');
+                const newWebhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${welcomeMsg}&views=${totalViewsToInject}&speed=${chosenSpeed}`;
+                await sendTelegramRequest(token, 'setWebhook', { url: newWebhookUrl });
+
+                const text = `ℹ️ Success!\nDelivery Engine Speed profile updated to: ${chosenSpeed.toUpperCase()}`;
+                const keyboard = [[{ text: "🔙 Main Menu", callback_data: "open_settings_menu" }]];
+                await refreshScreen(text, keyboard);
             }
 
             await sendTelegramRequest(token, 'answerCallbackQuery', { callback_query_id: callbackQuery.id });
@@ -195,41 +253,42 @@ module.exports = async (req, res) => {
         }
     }
 
-    // -------------------------------------------------------------
-    // INSTALLATION GATEWAY (Default Route)
-    // -------------------------------------------------------------
-    const query = { ...queryParams, ...req.body };
-    const token = query.token;
-    const status = query.status || "true";
-    const adminId = query.admin || ""; 
-    const welcomeMsg = query.msg || "Hello dear {name}! I am Views Bot 🤖";
-    const defaultViews = query.views || "20";
+    // -------------------------------------------------------------------------
+    // 🌐 SECTION 2: INITIAL SYSTEM GATEWAY / MOUNT URL (Default Path)
+    // -------------------------------------------------------------------------
+    const baseInput = { ...queryParams, ...req.body };
+    const systemToken = baseInput.token;
+    const systemStatus = baseInput.status || "true";
+    const adminId = baseInput.admin || ""; 
+    const welcomeMsg = baseInput.msg || "Hello dear {name}! I am Views Bot 🤖";
+    const initialViews = baseInput.views || "20";
+    const initialSpeed = baseInput.speed || "ultra";
 
-    if (!token) {
-        return res.status(200).json({ status: "error", message: "Missing bot token!" });
+    if (!systemToken) {
+        return res.status(200).json({ status: "error", message: "Missing bot authentication token!" });
     }
 
-    if (status === "true") {
-        const encodedMsg = encodeURIComponent(welcomeMsg);
+    if (systemStatus === "true") {
+        const encodedWelcome = encodeURIComponent(welcomeMsg);
         const domain = req.headers['x-forwarded-host'] || req.headers.host;
-        const webhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${encodedMsg}&views=${defaultViews}`;
+        const systemWebhookUrl = `https://${domain}/api?route=webhook&token=${systemToken}&admin=${adminId}&msg=${encodedWelcome}&views=${initialViews}&speed=${initialSpeed}`;
 
-        const data = await sendTelegramRequest(token, 'setWebhook', { 
-            url: webhookUrl,
+        const callbackCheck = await sendTelegramRequest(systemToken, 'setWebhook', { 
+            url: systemWebhookUrl,
             allowed_updates: ["message", "callback_query", "channel_post"]
         });
 
-        if (data.ok) {
-            return res.status(200).json({ status: "success", message: "Bot successfully installed!" });
+        if (callbackCheck.ok) {
+            return res.status(200).json({ status: "success", message: "System activated on serverless web router!" });
         } else {
-            return res.status(200).json({ status: "error", telegram_error: data.description });
+            return res.status(200).json({ status: "error", telegram_error: callbackCheck.description });
         }
     } else {
-        const data = await sendTelegramRequest(token, 'deleteWebhook', {});
-        if (data.ok) {
-            return res.status(200).json({ status: "success", message: "Bot successfully uninstalled!" });
+        const callbackCheck = await sendTelegramRequest(systemToken, 'deleteWebhook', {});
+        if (callbackCheck.ok) {
+            return res.status(200).json({ status: "success", message: "System uninstalled securely." });
         } else {
-            return res.status(200).json({ status: "error", telegram_error: data.description });
+            return res.status(200).json({ status: "error", telegram_error: callbackCheck.description });
         }
     }
 };
