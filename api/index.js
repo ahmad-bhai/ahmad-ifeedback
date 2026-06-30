@@ -39,9 +39,8 @@ function hitWebPage(url) {
     });
 }
 
-// Main Serverless Handler (Vercel Standard Format)
+// Main Serverless Handler
 module.exports = async (req, res) => {
-    // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -51,53 +50,11 @@ module.exports = async (req, res) => {
     }
 
     const parsedUrl = urlModule.parse(req.url, true);
-    const pathname = parsedUrl.pathname;
-
-    // -------------------------------------------------------------
-    // PATH 1: BOT SETUP / INSTALLATION (Endpoint: /api)
-    // -------------------------------------------------------------
-    if (pathname === '/api' || pathname === '/api/') {
-        const query = { ...parsedUrl.query, ...req.body };
-        const token = query.token;
-        const status = query.status || "true";
-        const adminId = query.admin || ""; 
-        const welcomeMsg = query.msg || "Hello dear *{name}*! I am Views Bot 🤖";
-        const defaultViews = query.views || "20";
-
-        if (!token) {
-            return res.status(200).json({ status: "error", message: "Missing bot token!" });
-        }
-
-        if (status === "true") {
-            const encodedMsg = encodeURIComponent(welcomeMsg);
-            const domain = req.headers['x-forwarded-host'] || req.headers.host;
-            // Webhook setup mapping explicitly to our conditional router below
-            const webhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${encodedMsg}&views=${defaultViews}`;
-
-            const data = await sendTelegramRequest(token, 'setWebhook', { 
-                url: webhookUrl,
-                allowed_updates: ["message", "callback_query", "channel_post"]
-            });
-
-            if (data.ok) {
-                return res.status(200).json({ status: "success", message: "Bot successfully installed!" });
-            } else {
-                return res.status(200).json({ status: "error", telegram_error: data.description });
-            }
-        } else {
-            const data = await sendTelegramRequest(token, 'deleteWebhook', {});
-            if (data.ok) {
-                return res.status(200).json({ status: "success", message: "Bot successfully uninstalled!" });
-            } else {
-                return res.status(200).json({ status: "error", telegram_error: data.description });
-            }
-        }
-    }
-
-    // -------------------------------------------------------------
-    // PATH 2: WEBHOOK EVENTS UPDATES (Triggered via ?route=webhook query parameter)
-    // -------------------------------------------------------------
     const queryParams = parsedUrl.query;
+
+    // -------------------------------------------------------------
+    // PATH 1: WEBHOOK EVENTS UPDATES (Agar URL me route=webhook ho)
+    // -------------------------------------------------------------
     if (queryParams.route === 'webhook') {
         const { token, admin: adminId, msg: welcomeMsg, views: currentViewsSetting } = queryParams;
         const update = req.body;
@@ -224,6 +181,41 @@ module.exports = async (req, res) => {
         }
     }
 
-    // Default Fallback Response
-    return res.status(404).send('Not Found');
+    // -------------------------------------------------------------
+    // PATH 2: BOT SETUP / INSTALLATION (Default /api Route)
+    // -------------------------------------------------------------
+    const query = { ...queryParams, ...req.body };
+    const token = query.token;
+    const status = query.status || "true";
+    const adminId = query.admin || ""; 
+    const welcomeMsg = query.msg || "Hello dear *{name}*! I am Views Bot 🤖";
+    const defaultViews = query.views || "20";
+
+    if (!token) {
+        return res.status(200).json({ status: "error", message: "Missing bot token!" });
+    }
+
+    if (status === "true") {
+        const encodedMsg = encodeURIComponent(welcomeMsg);
+        const domain = req.headers['x-forwarded-host'] || req.headers.host;
+        const webhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${encodedMsg}&views=${defaultViews}`;
+
+        const data = await sendTelegramRequest(token, 'setWebhook', { 
+            url: webhookUrl,
+            allowed_updates: ["message", "callback_query", "channel_post"]
+        });
+
+        if (data.ok) {
+            return res.status(200).json({ status: "success", message: "Bot successfully installed!" });
+        } else {
+            return res.status(200).json({ status: "error", telegram_error: data.description });
+        }
+    } else {
+        const data = await sendTelegramRequest(token, 'deleteWebhook', {});
+        if (data.ok) {
+            return res.status(200).json({ status: "success", message: "Bot successfully uninstalled!" });
+        } else {
+            return res.status(200).json({ status: "error", telegram_error: data.description });
+        }
+    }
 };
