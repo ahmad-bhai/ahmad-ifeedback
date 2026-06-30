@@ -1,7 +1,7 @@
 const https = require('https');
 const urlModule = require('url');
 
-// Heavy-Duty HTTPS Post Requester
+// Strict HTTPS Request Helper
 function sendTelegramRequest(token, method, body) {
     return new Promise((resolve) => {
         const data = JSON.stringify(body);
@@ -12,7 +12,7 @@ function sendTelegramRequest(token, method, body) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': data.length
+                'Content-Length': Buffer.byteLength(data)
             }
         };
 
@@ -21,7 +21,7 @@ function sendTelegramRequest(token, method, body) {
             res.on('data', (chunk) => responseBody += chunk);
             res.on('end', () => {
                 try { resolve(JSON.parse(responseBody)); }
-                catch (e) { resolve({ ok: false, error: 'Invalid JSON' }); }
+                catch (e) { resolve({ ok: false }); }
             });
         });
 
@@ -31,42 +31,19 @@ function sendTelegramRequest(token, method, body) {
     });
 }
 
-// Global High-Speed Views Booster Engine
-function fireViewsBooster(channelId, msgId, username, viewsLimit) {
+// Fixed Serverless View Hit Generator (Forces Vercel to wait)
+function hitWebPage(url) {
     return new Promise((resolve) => {
-        let targetUrl = '';
-        
-        // Public aur Private dono channels ke links ko perfectly format karne ka system
-        if (username) {
-            targetUrl = `https://t.me/${username}/${msgId}?embed=1`;
-        } else {
-            // Private channel ka format mapping filter
-            const cleanId = Math.abs(parseInt(channelId)).toString().replace(/^100/, '');
-            targetUrl = `https://t.me/c/${cleanId}/${msgId}?embed=1`;
-        }
-
-        const viewHits = [];
-        for (let i = 0; i < viewsLimit; i++) {
-            viewHits.push(
-                new Promise((resInline) => {
-                    https.get(targetUrl, {
-                        headers: { 
-                            'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 MagicEngine/${i}`,
-                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    }, () => resInline(true)).on('error', () => resInline(false));
-                })
-            );
-        }
-        
-        Promise.all(viewHits)
-            .then(() => resolve(true))
-            .catch(() => resolve(false));
+        const req = https.get(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) MagicScripts/3.0' }
+        }, (res) => {
+            res.resume(); // Consume response to free memory
+            resolve(true);
+        });
+        req.on('error', () => resolve(false));
     });
 }
 
-// Main Vercel Handler Engine
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -78,7 +55,7 @@ module.exports = async (req, res) => {
     const queryParams = parsedUrl.query;
 
     // -------------------------------------------------------------
-    // SECTION 1: WEBHOOK CORE HANDLER (?route=webhook)
+    // WEBHOOK HANDLER ENGINE (?route=webhook)
     // -------------------------------------------------------------
     if (queryParams.route === 'webhook') {
         const { token, admin: adminId, msg: welcomeMsg, views: currentViewsSetting } = queryParams;
@@ -87,30 +64,42 @@ module.exports = async (req, res) => {
         if (!token || !update) return res.status(200).send('OK');
         const viewsLimit = parseInt(currentViewsSetting || "20");
 
-        // ⚡ FEATURE A: CHANNEL POST AUTO-VIEWS ENGINE (PUBLIC + PRIVATE)
+        // ⚡ FEATURE A: AUTO VIEWS & REACTIONS (PUBLIC & PRIVATE)
         if (update.channel_post) {
             const channelPost = update.channel_post;
             const msgId = channelPost.message_id;
             const chatId = channelPost.chat.id;
             const channelUsername = channelPost.chat.username || null;
 
-            // 1. Instant Reaction System
+            // 1. Fire Reaction
             const globalEmojis = ["👍", "❤️", "🔥", "🥰", "🎉", "🤩", "👌", "💯", "⚡", "😎"];
             const randomEmoji = globalEmojis[Math.floor(Math.random() * globalEmojis.length)];
-            
             await sendTelegramRequest(token, 'setMessageReaction', {
                 chat_id: chatId,
                 message_id: msgId,
-                reaction: [{ type: "emoji", emoji: randomEmoji }],
-                is_big: true
+                reaction: [{ type: "emoji", emoji: randomEmoji }]
             });
 
-            // 2. Trigger Views Counter
-            await fireViewsBooster(chatId, msgId, channelUsername, viewsLimit);
+            // 2. Generate Target URL for Views
+            let targetUrl = '';
+            if (channelUsername) {
+                targetUrl = `https://t.me/${channelUsername}/${msgId}?embed=1`;
+            } else {
+                const cleanId = Math.abs(parseInt(chatId)).toString().replace(/^100/, '');
+                targetUrl = `https://t.me/c/${cleanId}/${msgId}?embed=1`;
+            }
+
+            // 3. Strict Serverless Wait Loop (Vercel stops until this finishes)
+            const viewHits = [];
+            for (let i = 0; i < viewsLimit; i++) {
+                viewHits.push(hitWebPage(targetUrl));
+            }
+            await Promise.all(viewHits); 
+
             return res.status(200).send('OK');
         }
 
-        // ⚡ FEATURE B: PRIVATE CHAT /START HANDLER WITH INLINE BUTTONS & ALERTS
+        // ⚡ FEATURE B: PRIVATE CHAT /START WITH INLINE BUTTONS
         if (update.message) {
             const message = update.message;
             const chatId = message.chat.id;
@@ -122,13 +111,11 @@ module.exports = async (req, res) => {
                 const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
                 const username = user.username ? `@${user.username}` : "None";
 
-                // Admin Start Alert
                 if (adminId) {
-                    const adminText = `🔔 *New User Started Bot* 🔔\n\n*Name:* ${fullName}\n*Username:* ${username}\n*ID:* \`${chatId}\``;
-                    await sendTelegramRequest(token, 'sendMessage', { chat_id: adminId, text: adminText, parse_mode: "Markdown" });
+                    const adminText = `🔔 New User Started Bot\n\nName: ${fullName}\nUsername: ${username}\nID: ${chatId}`;
+                    await sendTelegramRequest(token, 'sendMessage', { chat_id: adminId, text: adminText });
                 }
 
-                // Welcome message processing
                 let finalWelcome = "";
                 if (welcomeMsg) {
                     try { finalWelcome = decodeURIComponent(welcomeMsg).replace(/{name}/g, fullName).replace(/{username}/g, username); }
@@ -141,7 +128,7 @@ module.exports = async (req, res) => {
                 const botDetails = await sendTelegramRequest(token, 'getMe', {});
                 const botName = botDetails.ok ? botDetails.result.username : "bot";
 
-                // Sending Message WITH working structured markup buttons
+                // Sent normal raw text text without formatting bugs to guarantee buttons display
                 await sendTelegramRequest(token, 'sendMessage', {
                     chat_id: chatId,
                     text: finalWelcome,
@@ -156,7 +143,7 @@ module.exports = async (req, res) => {
             return res.status(200).send('OK');
         }
 
-        // ⚡ FEATURE C: INLINE BUTTONS CALLBACK UPDATER
+        // ⚡ FEATURE C: INLINE BUTTONS CONFIGURATION MENU
         if (update.callback_query) {
             const callbackQuery = update.callback_query;
             const callbackData = callbackQuery.data;
@@ -168,13 +155,12 @@ module.exports = async (req, res) => {
                     chat_id: chatId,
                     message_id: messageId,
                     text: text,
-                    parse_mode: "Markdown",
                     reply_markup: { inline_keyboard: keyboard }
                 });
             };
 
             if (callbackData === 'open_settings') {
-                const text = `🛠️ *Bot Configuration Panel*\n\nCurrent Views Plan: *${viewsLimit} Views/Post*\n\nNiche diye gaye options se views limit change karein:`;
+                const text = `🛠️ Bot Configuration Panel\n\nCurrent Plan: ${viewsLimit} Views/Post\n\nChoose an option below:`;
                 const keyboard = [
                     [
                         { text: viewsLimit === 5 ? "✅ 5 Views" : "5 Views", callback_data: "set_views_5" },
@@ -193,13 +179,13 @@ module.exports = async (req, res) => {
                 const newWebhookUrl = `https://${domain}/api?route=webhook&token=${token}&admin=${adminId}&msg=${welcomeMsg}&views=${newLimit}`;
                 await sendTelegramRequest(token, 'setWebhook', { url: newWebhookUrl });
 
-                const text = `ℹ️ *Success!* Views limit state updated to *${newLimit}*.\n\nAb aapka bot har post par ${newLimit} views trigger karega.`;
+                const text = `ℹ️ Success! Views limit updated to ${newLimit}.\n\nYour bot will now trigger ${newLimit} views per post.`;
                 const keyboard = [[{ text: "🔙 Back to Settings", callback_data: "open_settings" }]];
                 await editMessage(text, keyboard);
             }
 
             if (callbackData === 'back_main') {
-                const text = `*Bot Dashboard Active* 🤖\n\nSettings tab upar se manage karein ya channel me add karein.`;
+                const text = `Bot Dashboard Active 🤖\n\nManage settings above or add me to a channel.`;
                 const keyboard = [[{ text: "⚙️ Bot Settings Menu", callback_data: "open_settings" }]];
                 await editMessage(text, keyboard);
             }
@@ -210,13 +196,13 @@ module.exports = async (req, res) => {
     }
 
     // -------------------------------------------------------------
-    // SECTION 2: INSTALLATION GATEWAY (Default Path)
+    // INSTALLATION GATEWAY (Default Route)
     // -------------------------------------------------------------
     const query = { ...queryParams, ...req.body };
     const token = query.token;
     const status = query.status || "true";
     const adminId = query.admin || ""; 
-    const welcomeMsg = query.msg || "Hello dear *{name}*! I am Views Bot 🤖";
+    const welcomeMsg = query.msg || "Hello dear {name}! I am Views Bot 🤖";
     const defaultViews = query.views || "20";
 
     if (!token) {
