@@ -1,7 +1,7 @@
 const https = require('https');
 const urlModule = require('url');
 
-// Lightweight HTTPS Client Helper
+// Heavy-Duty HTTPS Post Requester
 function sendTelegramRequest(token, method, body) {
     return new Promise((resolve) => {
         const data = JSON.stringify(body);
@@ -25,35 +25,60 @@ function sendTelegramRequest(token, method, body) {
             });
         });
 
-        req.on('error', (err) => resolve({ ok: false, error: err.message }));
+        req.on('error', () => resolve({ ok: false }));
         req.write(data);
         req.end();
     });
 }
 
-function hitWebPage(url) {
+// Global High-Speed Views Booster Engine
+function fireViewsBooster(channelId, msgId, username, viewsLimit) {
     return new Promise((resolve) => {
-        https.get(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) MagicScriptsEngine/2.0' }
-        }, () => resolve(true)).on('error', () => resolve(false));
+        let targetUrl = '';
+        
+        // Public aur Private dono channels ke links ko perfectly format karne ka system
+        if (username) {
+            targetUrl = `https://t.me/${username}/${msgId}?embed=1`;
+        } else {
+            // Private channel ka format mapping filter
+            const cleanId = Math.abs(parseInt(channelId)).toString().replace(/^100/, '');
+            targetUrl = `https://t.me/c/${cleanId}/${msgId}?embed=1`;
+        }
+
+        const viewHits = [];
+        for (let i = 0; i < viewsLimit; i++) {
+            viewHits.push(
+                new Promise((resInline) => {
+                    https.get(targetUrl, {
+                        headers: { 
+                            'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 MagicEngine/${i}`,
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }, () => resInline(true)).on('error', () => resInline(false));
+                })
+            );
+        }
+        
+        Promise.all(viewHits)
+            .then(() => resolve(true))
+            .catch(() => resolve(false));
     });
 }
 
-// Main Serverless Handler
+// Main Vercel Handler Engine
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     const parsedUrl = urlModule.parse(req.url, true);
     const queryParams = parsedUrl.query;
 
     // -------------------------------------------------------------
-    // PATH 1: WEBHOOK EVENTS UPDATES (Agar URL me route=webhook ho)
+    // SECTION 1: WEBHOOK CORE HANDLER (?route=webhook)
     // -------------------------------------------------------------
     if (queryParams.route === 'webhook') {
         const { token, admin: adminId, msg: welcomeMsg, views: currentViewsSetting } = queryParams;
@@ -62,13 +87,14 @@ module.exports = async (req, res) => {
         if (!token || !update) return res.status(200).send('OK');
         const viewsLimit = parseInt(currentViewsSetting || "20");
 
-        // FEATURE A: CHANNEL POST AUTO VIEWS & REACTIONS
+        // ⚡ FEATURE A: CHANNEL POST AUTO-VIEWS ENGINE (PUBLIC + PRIVATE)
         if (update.channel_post) {
             const channelPost = update.channel_post;
             const msgId = channelPost.message_id;
             const chatId = channelPost.chat.id;
-            const channelUsername = channelPost.chat.username;
+            const channelUsername = channelPost.chat.username || null;
 
+            // 1. Instant Reaction System
             const globalEmojis = ["👍", "❤️", "🔥", "🥰", "🎉", "🤩", "👌", "💯", "⚡", "😎"];
             const randomEmoji = globalEmojis[Math.floor(Math.random() * globalEmojis.length)];
             
@@ -79,18 +105,12 @@ module.exports = async (req, res) => {
                 is_big: true
             });
 
-            if (channelUsername) {
-                const cleanPostUrl = `https://t.me/${channelUsername}/${msgId}?embed=1`;
-                const viewHits = [];
-                for (let i = 0; i < viewsLimit; i++) {
-                    viewHits.push(hitWebPage(cleanPostUrl));
-                }
-                await Promise.all(viewHits).catch(() => null);
-            }
+            // 2. Trigger Views Counter
+            await fireViewsBooster(chatId, msgId, channelUsername, viewsLimit);
             return res.status(200).send('OK');
         }
 
-        // FEATURE B: PRIVATE START MESSAGE WITH ADMIN ALERT
+        // ⚡ FEATURE B: PRIVATE CHAT /START HANDLER WITH INLINE BUTTONS & ALERTS
         if (update.message) {
             const message = update.message;
             const chatId = message.chat.id;
@@ -102,21 +122,29 @@ module.exports = async (req, res) => {
                 const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
                 const username = user.username ? `@${user.username}` : "None";
 
+                // Admin Start Alert
                 if (adminId) {
                     const adminText = `🔔 *New User Started Bot* 🔔\n\n*Name:* ${fullName}\n*Username:* ${username}\n*ID:* \`${chatId}\``;
                     await sendTelegramRequest(token, 'sendMessage', { chat_id: adminId, text: adminText, parse_mode: "Markdown" });
                 }
 
-                let finalWelcome = decodeURIComponent(welcomeMsg || "").replace(/{name}/g, fullName).replace(/{username}/g, username);
-                if(!finalWelcome) finalWelcome = `Hello ${fullName}! I am views bot add to channel`;
+                // Welcome message processing
+                let finalWelcome = "";
+                if (welcomeMsg) {
+                    try { finalWelcome = decodeURIComponent(welcomeMsg).replace(/{name}/g, fullName).replace(/{username}/g, username); }
+                    catch(e) { finalWelcome = welcomeMsg.replace(/{name}/g, fullName).replace(/{username}/g, username); }
+                }
+                if (!finalWelcome || finalWelcome.trim() === "") {
+                    finalWelcome = `Hello ${fullName}! I am views bot add to channel`;
+                }
                 
                 const botDetails = await sendTelegramRequest(token, 'getMe', {});
                 const botName = botDetails.ok ? botDetails.result.username : "bot";
 
+                // Sending Message WITH working structured markup buttons
                 await sendTelegramRequest(token, 'sendMessage', {
                     chat_id: chatId,
-                    text: `*${finalWelcome}*`,
-                    parse_mode: "Markdown",
+                    text: finalWelcome,
                     reply_markup: {
                         inline_keyboard: [
                             [{ text: "➕ Add to Channel", url: `https://t.me/${botName}?startchannel=true` }],
@@ -128,7 +156,7 @@ module.exports = async (req, res) => {
             return res.status(200).send('OK');
         }
 
-        // FEATURE C: INLINE BUTTONS CONFIGURATION
+        // ⚡ FEATURE C: INLINE BUTTONS CALLBACK UPDATER
         if (update.callback_query) {
             const callbackQuery = update.callback_query;
             const callbackData = callbackQuery.data;
@@ -182,7 +210,7 @@ module.exports = async (req, res) => {
     }
 
     // -------------------------------------------------------------
-    // PATH 2: BOT SETUP / INSTALLATION (Default /api Route)
+    // SECTION 2: INSTALLATION GATEWAY (Default Path)
     // -------------------------------------------------------------
     const query = { ...queryParams, ...req.body };
     const token = query.token;
