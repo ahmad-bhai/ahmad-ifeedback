@@ -39,8 +39,8 @@
             <div id="uid-display" style="background: #f1f5f9; color: #334155; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 14px; border: 1px dashed #0088cc; margin-bottom: 20px; word-break: break-all;">${myUID}</div>
             <div id="auth-content">
                 <div style="text-align: left; font-size: 14px; color: #444; line-height: 1.6; border-top: 1px solid #eee; padding-top: 15px; margin-bottom: 15px;">
-                    <b>Whatsapp:</b> <span style="color: #25d366;">+923120883884</span><br>
-                    <b>Telegram:</b> <span style="color: #0088cc;">@AhmadTrader3</span><br>
+                    <b>Whatsapp:</b> <span style="color: #25d366;">+923316346879</span><br>
+                    <b>Telegram:</b> <span style="color: #0088cc;">@Magic_Scripts</span><br>
                     <div style="margin-top: 10px; text-align: center; font-weight: bold; color: #d9534f;">Contact to unlock</div>
                 </div>
                 <button onclick="location.reload()" style="width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">RETRY</button>
