@@ -1,4 +1,3 @@
-
 // --- Security Check Start ---
 (function() {
     const authorizedDomain = "ahmad-ifeedback.vercel.app";
@@ -10,10 +9,11 @@
     }
 })();
 // --- Security Check End ---
+
 (function() {
-    // 1. CONFIG & ID
-    var projectID = "reactions-maker-site";
-    var dbURL = "https://" + projectID + "-default-rtdb.firebaseio.com/users.json";
+    // 1. CONFIG & NEW VERCEL AUTH API
+    // Ahmad Bhai, ab humne direct Firebase link hatakar aapka fast Vercel URL laga diya hai
+    var authAPI = "https://ahmad-ifeedback.vercel.app/f?id=";
     
     var myUID = localStorage.getItem('ahmad_script_uid');
     if (!myUID) {
@@ -49,13 +49,22 @@
     `;
     document.body.appendChild(overlay);
 
-    // 3. AUTH & EMAIL FLOW
-    fetch(dbURL).then(r => r.json()).then(data => {
-        var isUnlocked = false;
-        if (data) { Object.values(data).forEach(u => { if (u.id === myUID) isUnlocked = true; }); }
-        if (isUnlocked) { checkEmailFlow(); } 
-        else { document.getElementById("status-msg").innerText = "ID Not Registered!"; document.getElementById("status-msg").style.color = "red"; }
-    });
+    // 3. SECURE AUTHENTICATION FLOW
+    // Ab yeh pure data fetch nahi karega, balki seedha true/false check karega aapki API se
+    fetch(authAPI + myUID)
+        .then(r => r.json())
+        .then(res => {
+            if (res && res.authorized === true) { 
+                checkEmailFlow(); 
+            } else { 
+                document.getElementById("status-msg").innerText = "ID Not Registered!"; 
+                document.getElementById("status-msg").style.color = "red"; 
+            }
+        })
+        .catch(err => {
+            document.getElementById("status-msg").innerText = "Server Error! Retry Again.";
+            document.getElementById("status-msg").style.color = "orange";
+        });
 
     function checkEmailFlow() {
         var savedEmail = localStorage.getItem('ahmad_user_email');
@@ -70,8 +79,7 @@
                     <div class="em-item" data-val="pqa@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">pqa@gmail.com</div>
                     <div class="em-item" data-val="honey.heist@gmail.com" style="padding: 12px; cursor: pointer;">honey.heist@gmail.com</div>
                     <div class="em-item" data-val="mob@gmail.com" style="padding: 12px; cursor: pointer;">mob@gmail.com</div>
-            <div class="em-item" data-val="bug.shoter@gmail.com" style="padding: 12px; cursor: pointer;">bug.shoter@gmail.com</div>
-
+                    <div class="em-item" data-val="bug.shoter@gmail.com" style="padding: 12px; cursor: pointer;">bug.shoter@gmail.com</div>
                 </div>
                 <button id="activate-btn" disabled style="width: 100%; background: #ccc; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;">ACTIVATE</button>
             `;
@@ -102,7 +110,7 @@
         // --- BATTERY LOGIC (FIXED) ---
         var bInp = document.querySelector("input[type='number']");
         var bBar = document.querySelector(".battery2");
-        var bTxt = document.querySelector(".battery_percent"); // For text update if exists
+        var bTxt = document.querySelector(".battery_percent");
 
         if(bInp && bBar) {
             var updateBattery = function() {
@@ -113,7 +121,7 @@
                 if(bTxt) bTxt.innerText = val + "%";
             };
             bInp.addEventListener('input', updateBattery);
-            updateBattery(); // Initialize on load
+            updateBattery();
         }
 
         var names = ["MD Zeeshan","Anaya","Bilal","Alyan","Ajay","Fatima","Aliya","Sania"];
@@ -167,9 +175,8 @@
                 document.body.contentEditable = "false";
                 dlBtn.style.display = "none";
                 
-                // --- Ultra HD Quality (Scale 4) ---
                 html2canvas(document.querySelector("#box"), {
-                    scale: 4, // 4x sharper than screen
+                    scale: 4, 
                     useCORS: true,
                     allowTaint: true,
                     imageTimeout: 0,
@@ -191,4 +198,3 @@
         document.body.contentEditable = "true";
     }
 })();
-
