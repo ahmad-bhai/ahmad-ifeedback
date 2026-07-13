@@ -64,7 +64,7 @@
             document.getElementById("uid-display").style.display = "none";
             document.getElementById("auth-content").innerHTML = `
                 <div id="email-list" style="margin-bottom: 20px; text-align: left; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
-                    <div class="em-item" data-val="normal" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">Normal (ahmad.png)</div>
+                    <div class="em-item" data-val="normal" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">Default</div>
                     <div class="em-item" data-val="ahmadbhai@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">ahmadbhai@gmail.com</div>
                     <div class="em-item" data-val="usman@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">usman@gmail.com</div>
                     <div class="em-item" data-val="pqa@gmail.com" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">pqa@gmail.com</div>
@@ -92,7 +92,7 @@
 
     // 4. MAIN UI
     function executeMain(email) {
-        var logoMap = {"normal":"ahmad.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","honey.heist@gmail.com":"hh.png","bug.shoter@gmail.com":"bs.png","mob@gmail.com":"mob.png"};
+        var logoMap = {"normal":"https://i.ibb.co/xqXhx24Z/MS.png","ahmadbhai@gmail.com":"ahmadbhai.png","usman@gmail.com":"usman.png","pqa@gmail.com":"pqa.png","honey.heist@gmail.com":"hh.png","bug.shoter@gmail.com":"bs.png","mob@gmail.com":"mob.png"};
         document.querySelector(".logo")?.setAttribute("src", logoMap[email] || "ahmad.png");
 
         var now = new Date();
