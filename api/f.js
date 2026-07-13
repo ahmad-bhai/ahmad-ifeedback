@@ -1,38 +1,35 @@
-const express = require('express');
-const axios = require('axios'); // Firebase fetch karne ke liye axios ya standard fetch use karein
-const app = express();
+export default async function handler(req, res) {
+    // CORS headers taake aap kisi bhi site se fetch kar sakein
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-const projectID = "reactions-maker-site";
-const dbURL = `https://${projectID}-default-rtdb.firebaseio.com/users.json`;
-
-// Yeh function Firebase se link connect karke ID verify karega
-async function verifyUserIdentity(req, res) {
     try {
-        // URL parameters se id nikali (Jaise: ?id=68052023345055455997 ya seedha string matching)
-        let incomingId = req.query.id;
+        // URL parameters se ID nikalna (?id=...)
+        const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
+        let incomingId = searchParams.get('id');
+
+        if (!incomingId) {
+            return res.status(200).json({ authorized: false, error: "ID parameters clear nahi hain" });
+        }
+
+        const projectID = "reactions-maker-site";
+        const dbURL = `https://${projectID}-default-rtdb.firebaseio.com/users.json`;
+
+        // Bina kisi package ke direct native fetch use kiya
+        const response = await fetch(dbURL);
         
-        // Agar explicit parameters nahi mila, toh search query pattern fallback check karega
-        if (!incomingId) {
-            const fullUrl = req.originalUrl;
-            const match = fullUrl.match(/[?&]id=([0-9]+)/);
-            incomingId = match ? match[1] : null;
+        if (!response.ok) {
+            return res.status(200).json({ authorized: false, error: "Firebase connection issue" });
         }
 
-        if (!incomingId) {
-            return res.status(400).json({ success: false, authorized: false, error: "ID parameter missing" });
-        }
-
-        // Firebase real-time database hit kiya
-        const response = await axios.get(dbURL);
-        const allUsers = response.data;
-
+        const allUsers = await response.json();
         let isRegisteredUser = false;
 
         if (allUsers) {
-            // Firebase ke andar unique string keys (Jaise: "Ox6U3GqRFUOQpp_rrhI") ko scan karna
+            // Poore object ko depth mein loop kiya jo aapne format diya tha
             for (let key in allUsers) {
-                if (allUsers[key] && allUsers[key].id === incomingId.trim()) {
-                    // Check user status active hai ya nahi
+                if (allUsers[key] && String(allUsers[key].id) === String(incomingId).trim()) {
                     if (allUsers[key].status === "active") {
                         isRegisteredUser = true;
                     }
@@ -41,19 +38,12 @@ async function verifyUserIdentity(req, res) {
             }
         }
 
-        // Response format: Agar database mein mili toh true, warna false
+        // Exact true / false response jaisa aapne manga tha
         return res.status(200).json({ 
             authorized: isRegisteredUser 
         });
 
     } catch (error) {
-        console.error("Firebase Auth Bridge Error:", error.message);
-        return res.status(500).json({ authorized: false, error: "Internal Auth Verification System Failure" });
+        return res.status(200).json({ authorized: false, error: error.message });
     }
 }
-
-// ─── ROUTES CONFIGURATION (Dono patterns handle honge) ───
-app.get('/f', verifyUserIdentity);
-app.get('/api/f.js', verifyUserIdentity);
-
-module.exports = app;
